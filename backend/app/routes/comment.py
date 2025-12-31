@@ -6,6 +6,7 @@ from app.models.comment import Comment
 from app.models.report import Report
 from app.core.deps import get_current_user
 from app.models.user import User
+from app.models.notification import Notification
 
 router = APIRouter(tags=["Comments"])
 
@@ -52,6 +53,17 @@ def add_comment(
     )
     db.add(comment)
     db.commit()
+
+    if report.user_id != current_user.id:
+        note = Notification(
+            user_id=report.user_id,
+            actor_name=current_user.name,
+            type="comment",
+            report_id=report_id
+        )
+        db.add(note)
+        db.commit()
+
     return {"detail": "Comment added"}
 
 @router.delete("/{comment_id}")
