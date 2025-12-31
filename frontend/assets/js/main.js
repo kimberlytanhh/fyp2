@@ -122,7 +122,11 @@ function updateNavAuth() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", updateNavAuth);
+document.addEventListener("DOMContentLoaded", () => {
+  updateNavAuth();
+  loadNotificationBadge();
+});
+
 
 // =========================
 // PROTECT CREATE REPORT LINK
@@ -144,3 +148,24 @@ document.addEventListener("click", (e) => {
   const y = document.getElementById("year");
   if (y) y.textContent = new Date().getFullYear();
 })();
+
+async function loadNotificationBadge() {
+  if (!isAuthenticated()) return;
+
+  const res = await fetch(`${API}/notifications/`, {
+    headers: { Authorization: `Bearer ${getToken()}` }
+  });
+
+  const data = await res.json();
+  const unread = data.filter(n => !n.is_read).length;
+
+  const badge = document.getElementById("notifBadge");
+  if (!badge) return;
+
+  if (unread > 0) {
+    badge.textContent = unread;
+    badge.style.display = "inline-block";
+  } else {
+    badge.style.display = "none";
+  }
+}

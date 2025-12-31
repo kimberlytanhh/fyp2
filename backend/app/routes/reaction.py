@@ -5,6 +5,7 @@ from app.database import get_db
 from app.models.reaction import Reaction
 from app.models.report import Report
 from app.core.deps import get_current_user
+from app.models.notification import Notification
 
 router = APIRouter(tags=["Reactions"])
 
@@ -38,6 +39,17 @@ def react(
         ))
 
     db.commit()
+
+    if report.user_id != current_user.id:
+        note = Notification(
+            user_id=report.user_id,
+            actor_name=current_user.name,
+            type=type,   # like or dislike
+            report_id=report_id
+        )
+        db.add(note)
+        db.commit()
+
     return {"detail": "Reaction saved"}
 
 @router.get("/reports/{report_id}/reactions")

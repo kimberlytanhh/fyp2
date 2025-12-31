@@ -183,13 +183,15 @@ document.getElementById("commentBtn").onclick = async () => {
   const content = document.getElementById("commentInput").value.trim();
   if (!content) return;
 
+  const form = new FormData();
+  form.append("content", content);
+
   await fetch(`${API}/reports/${reportId}/comments`, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
       "Authorization": `Bearer ${getToken()}`
     },
-    body: JSON.stringify({ content })
+    body: form
   });
 
   document.getElementById("commentInput").value = "";
@@ -199,6 +201,49 @@ document.getElementById("commentBtn").onclick = async () => {
 /* ---------- INIT ---------- */
 loadReport();
 loadComments();
+loadReactions();
+
+document.getElementById("likeBtn").onclick = async () => {
+  const form = new FormData();
+  form.append("type", "like");
+
+  await fetch(`${API}/reports/${reportId}/reaction`, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${getToken()}`
+    },
+    body: form
+  });
+
+  loadReactions();
+};
+
+document.getElementById("dislikeBtn").onclick = async () => {
+  const form = new FormData();
+  form.append("type", "dislike");
+
+  await fetch(`${API}/reports/${reportId}/reaction`, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${getToken()}`
+    },
+    body: form
+  });
+
+  loadReactions();
+};
+
+async function loadReactions() {
+  const res = await fetch(`${API}/reports/${reportId}/reactions`);
+  const data = await res.json();
+
+  document.getElementById("likeCount").textContent = data.likes;
+  document.getElementById("dislikeCount").textContent = data.dislikes;
+}
+
+
+
+
 </script>
 
 
