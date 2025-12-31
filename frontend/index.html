@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Community Incident Reporting System</title>
+  <meta name="description" content="Report potholes, broken lights, and other local issues. Help your community fix problems faster." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><circle cx='32' cy='32' r='30' fill='%232347ff'/><path d='M32 12l16 40H16L32 12z' fill='%23fff'/></svg>">
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body>
+  <!-- Skip to content for a11y -->
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="#" class="logo" aria-label="CIRS Home">
+        <svg width="28" height="28" viewBox="0 0 64 64" aria-hidden="true">
+          <defs>
+            <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#6ea8ff"/>
+              <stop offset="100%" stop-color="#2347ff"/>
+            </linearGradient>
+          </defs>
+          <circle cx="32" cy="32" r="28" fill="url(#g1)"></circle>
+          <path d="M32 14l14 36H18L32 14z" fill="#fff"></path>
+          <circle cx="32" cy="44" r="3" fill="#2347ff"></circle>
+        </svg>
+        <span>CIRS</span>
+      </a>
+
+      <nav class="nav" aria-label="Primary">
+        <button class="nav-toggle" aria-controls="menu" aria-expanded="false">
+          <span class="sr-only">Open menu</span>
+          <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+        </button>
+        <ul id="menu" class="menu">
+          <li><a class="active" href="#">Home</a></li>
+          <li><a href="createreport.html" data-available="true">Create Report</a></li>
+          <li><a href="viewreports.html" data-available="true">View Reports</a></li>
+          <li><a href="#" data-available="false">Analytics</a></li>
+          <li><a href="#" data-available="false">Map</a></li>
+          <li><a href="#" data-available="false">Notifications</a></li>
+          <li><a href="#" data-available="false">Admin</a></li>
+          
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- HERO -->
+    <section class="hero container">
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <h1 class="reveal">Fix community issues, faster.</h1>
+          <p class="lead reveal">Spot a pothole, a flickering streetlight, or an unsafe junction? Report it in seconds and track progress—all in one place.</p>
+
+          <div class="cta-group reveal">
+            <a class="btn btn-primary" href="createreport.html">Create Report</a>
+            <a class="btn btn-ghost" href="viewreports.html">View Reports</a>
+          </div>
+
+  
+
+          <div class="trust-row reveal" aria-label="Impact counters">
+            <div class="counter">
+              <span class="count" data-target="1280" id="reportsCount">0</span>
+              <span class="label">Reports submitted</span>
+            </div>
+            <div class="counter">
+              <span class="count" data-target="874">0</span>
+              <span class="label">Issues resolved</span>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="hero-art reveal" aria-hidden="true">
+          <!-- Inline animated SVG illustration -->
+          <svg viewBox="0 0 640 420" class="hero-svg">
+            <defs>
+              <linearGradient id="bgG" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#e8f0ff" />
+                <stop offset="100%" stop-color="#f4f7ff" />
+              </linearGradient>
+              <linearGradient id="pinG" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#ff6a88" />
+                <stop offset="100%" stop-color="#ff3d5a" />
+              </linearGradient>
+              <filter id="glow">
+                <feGaussianBlur stdDeviation="6" result="coloredBlur"/>
+                <feMerge>
+                  <feMergeNode in="coloredBlur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+            </defs>
+
+            <!-- soft bg -->
+            <rect x="0" y="0" width="640" height="420" fill="url(#bgG)" rx="18"></rect>
+
+            <!-- roads -->
+            <g stroke="#c8d4ff" stroke-width="4" fill="none" stroke-linecap="round">
+              <path class="dash" d="M20 200 Q 160 120, 300 180 T 620 160"/>
+              <path class="dash" d="M40 280 Q 160 260, 260 340 T 600 320"/>
+              <path class="dash" d="M80 80 Q 220 120, 360 80 T 620 100"/>
+            </g>
+
+            <!-- buildings -->
+            <g fill="#dfe7ff">
+              <rect x="60" y="150" width="40" height="100" rx="6"></rect>
+              <rect x="110" y="130" width="36" height="120" rx="6"></rect>
+              <rect x="160" y="170" width="34" height="80" rx="6"></rect>
+
+              <rect x="450" y="210" width="46" height="90" rx="6"></rect>
+              <rect x="500" y="190" width="38" height="110" rx="6"></rect>
+              <rect x="550" y="230" width="36" height="70" rx="6"></rect>
+            </g>
+
+            <!-- pins -->
+            <g class="pin" transform="translate(220, 130)">
+              <path d="M24 0c13.3 0 24 10.7 24 24c0 18-24 44-24 44S0 42 0 24C0 10.7 10.7 0 24 0z" fill="url(#pinG)" filter="url(#glow)"></path>
+              <circle cx="24" cy="24" r="8" fill="#fff"></circle>
+            </g>
+            <g class="pin" transform="translate(360, 250)">
+              <path d="M24 0c13.3 0 24 10.7 24 24c0 18-24 44-24 44S0 42 0 24C0 10.7 10.7 0 24 0z" fill="url(#pinG)" filter="url(#glow)"></path>
+              <circle cx="24" cy="24" r="8" fill="#fff"></circle>
+            </g>
+            <g class="pin" transform="translate(520, 120)">
+              <path d="M24 0c13.3 0 24 10.7 24 24c0 18-24 44-24 44S0 42 0 24C0 10.7 10.7 0 24 0z" fill="url(#pinG)" filter="url(#glow)"></path>
+              <circle cx="24" cy="24" r="8" fill="#fff"></circle>
+            </g>
+
+            <!-- traffic light -->
+            <g class="traffic" transform="translate(120, 270)">
+              <rect x="0" y="0" width="40" height="80" rx="8" fill="#1f2a44"></rect>
+              <circle cx="20" cy="20" r="10" class="tl r"></circle>
+              <circle cx="20" cy="40" r="10" class="tl y"></circle>
+              <circle cx="20" cy="60" r="10" class="tl g"></circle>
+              <rect x="14" y="80" width="12" height="20" fill="#1f2a44"></rect>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="section container">
+      <div class="section-head">
+        <h2 class="reveal">Do the essentials beautifully</h2>
+        <p class="muted reveal">The core actions you need are fast, simple, and accessible.</p>
+      </div>
+      <div class="features-grid">
+        <article class="card feature reveal">
+          <div class="icon i-create" aria-hidden="true"></div>
+          <h3>Create Report</h3>
+          <p>Submit a new incident with photos, location and details in under a minute.</p>
+          <a class="link" href="createreport.html">Open form →</a>
+        </article>
+
+        <article class="card feature reveal">
+          <div class="icon i-view" aria-hidden="true"></div>
+          <h3>View</h3>
+          <p>Browse incidents by area, type, or status. Filter and sort to find what matters.</p>
+          <a class="link" href="viewreports.html">See reports →</a>
+        </article>
+
+        <article class="card feature reveal">
+          <div class="icon i-edit" aria-hidden="true"></div>
+          <h3>Edit</h3>
+          <p>Update your submissions with new information or photos as the situation evolves.</p>
+          <a class="link" href="editreport.html">Go to my reports →</a>
+        </article>
+
+        <article class="card feature reveal">
+          <div class="icon i-delete" aria-hidden="true"></div>
+          <h3>Delete</h3>
+          <p>Remove duplicates or mistakes to keep the feed clean and actionable.</p>
+          <a class="link" href="deletereport.html">Manage →</a>
+        </article>
+      </div>
+    </section>
+
+    <!-- PRIMARY CONTENT: How it works -->
+    <section class="section container alt">
+      <div class="split">
+        <div class="reveal">
+          <h2>How it works</h2>
+          <ol class="steps">
+            <li><strong>Snap it</strong> — Take a quick photo or mark the location.</li>
+            <li><strong>Describe it</strong> — Add details like type, severity, and notes.</li>
+            <li><strong>Submit</strong> — We notify the right channel and track progress.</li>
+          </ol>
+          <a class="btn btn-primary" href="createreport.html">Report an issue</a>
+        </div>
+        <div class="illustration reveal">
+          <img src="assets/img/hero.svg" alt="Illustration of reporting issues on a city map" />
+        </div>
+      </div>
+    </section>
+
+    
+
+    <!-- CTA -->
+    <section class="cta-band">
+      <div class="container cta-inner reveal">
+        <h2>Take 30 seconds to improve your street.</h2>
+        <a class="btn btn-light" href="createreport.html">Create Report</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <div class="logo small">
+          <svg width="24" height="24" viewBox="0 0 64 64" aria-hidden="true">
+            <circle cx="32" cy="32" r="28" fill="#2347ff"></circle>
+            <path d="M32 14l14 36H18L32 14z" fill="#fff"></path>
+          </svg>
+          <span>CIRS</span>
+        </div>
+        <p class="muted">Community Incident Reporting System</p>
+      </div>
+      <div>
+        <h4>Links</h4>
+        <ul class="list">
+          <li><a href="createreport.html">Create Report</a></li>
+          <li><a href="viewreports.html">View Reports</a></li>
+          <li><a href="#" class="notyetlink">Analytics</a></li>
+          <li><a href="#" class="notyetlink">Map</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <ul class="list">
+          <li><a href="mailto:hello@example.com">2103218@1utar.my</a></li>
+          <li><a href="#">@cirsapp</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="container legal">
+      <small>© <span id="year"></span> CIRS. All rights reserved.</small>
+    </div>
+  </footer>
+
+  <!-- Floating Report Button -->
+  <a href="createreport.html" class="fab" aria-label="Create Report">+</a>
+
+  <!-- Toast -->
+  <div class="toast" role="status" aria-live="polite" aria-atomic="true">
+    <div class="toast-inner">
+      <strong>Not available yet</strong>
+      <p>We’re building this. For now, try Create or View Reports.</p>
+      <button class="btn btn-sm close-toast" aria-label="Close">Close</button>
+    </div>
+  </div>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

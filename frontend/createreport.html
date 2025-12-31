@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CIRS – Create Report</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css" />
+
+  <style>
+    .page{ padding: 28px 0 40px; }
+    .form-card{ background: var(--card); border:1px solid var(--border); border-radius: 14px; padding: 18px; box-shadow: var(--shadow); }
+    .form-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-grid .full{ grid-column: 1 / -1; }
+    label{ color: var(--muted); font-size: 14px; display:block; margin-bottom: 6px; }
+    input[type="text"], input[type="email"], textarea{
+      width:100%; padding:12px 14px; border-radius:12px; border:1px solid var(--border);
+      background: rgba(255,255,255,0.03); color: var(--text);
+    }
+    textarea{ min-height: 120px; resize: vertical; }
+    .btn{ display:inline-block; padding:10px 14px; border-radius:12px; border:1px solid var(--border); text-decoration:none; color:#dfe7ff; cursor:pointer;}
+    .btn-primary{ background: var(--primary); border-color: var(--primary-600); }
+    .muted{ color: var(--muted); }
+    .actions{ display:flex; gap:10px; align-items:center; }
+    .help{ font-size: 12px; color: var(--muted); margin-top:6px; }
+  </style>
+</head>
+
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="index.html" class="logo">
+      <span>CIRS</span>
+    </a>
+    <nav class="nav">
+      <ul id="menu" class="menu">
+        <li><a href="index.html">Home</a></li>
+        <li><a class="active" href="createreport.html">Create Report</a></li>
+        <li><a href="viewreports.html">View Reports</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+  <div class="container">
+    <h1>Create Report</h1>
+    <p class="muted">You must be logged in to submit. Location is free text for maximum flexibility.</p>
+
+    <div class="form-card">
+      <form id="createForm">
+        <div class="form-grid">
+
+          <div>
+            <label>Your name</label>
+            <input id="name" type="text" disabled>
+            <div class="help">Taken from your profile</div>
+          </div>
+
+          <div>
+            <label>Email</label>
+            <input id="email" type="email" disabled>
+          </div>
+
+          <div class="full">
+            <label>Issue title</label>
+            <input id="title" type="text" required>
+          </div>
+
+          <div class="full">
+            <label>Description</label>
+            <textarea id="description" required></textarea>
+          </div>
+
+          <div class="full">
+            <label>Location</label>
+            <input id="locationText" type="text" required>
+          </div>
+
+          <div class="full">
+            <label>Upload image (optional)</label>
+            <input id="image" type="file" accept="image/*">
+          </div>
+
+          <div class="full">
+            <div class="actions">
+              <button class="btn btn-primary" type="submit">Submit report</button>
+              <a class="btn" href="viewreports.html">Cancel</a>
+            </div>
+          </div>
+
+        </div>
+      </form>
+    </div>
+  </div>
+</main>
+
+<div class="toast">
+  <div class="toast-inner"><p></p></div>
+</div>
+
+<div class="toast">
+  <div class="toast-inner">
+    <strong>Notice</strong>
+    <p></p>
+    <button class="close-toast" aria-label="Close">×</button>
+  </div>
+</div>
+
+<script src="assets/js/main.js"></script>
+<script>
+  const API_BASE = "http://127.0.0.1:8000";
+
+  requireAuth();
+
+  // Load profile
+  async function loadProfile() {
+    const res = await fetch(`${API_BASE}/users/me`, {
+      headers: { "Authorization": `Bearer ${getToken()}` }
+    });
+    if (!res.ok) return;
+    const user = await res.json();
+    document.getElementById("name").value = user.name;
+    document.getElementById("email").value = user.email;
+  }
+  loadProfile();
+
+  // Submit report
+  document.getElementById("createForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const titleEl = document.getElementById("title");
+    const descEl = document.getElementById("description");
+    const locEl = document.getElementById("locationText");
+    const imgEl = document.getElementById("image");
+
+    const formData = new FormData();
+    formData.append("title", titleEl.value.trim());
+    formData.append("description", descEl.value.trim());
+    formData.append("location", locEl.value.trim());
+
+    if (imgEl.files.length > 0) {
+      formData.append("image", imgEl.files[0]);
+    }
+
+    const res = await fetch(`${API_BASE}/reports/`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${getToken()}`
+      },
+      body: formData
+    });
+
+    let data = null;
+    try {
+      data = await res.json();
+    } catch (e) {}
+
+    if (!res.ok) {
+      showToast(typeof data?.detail === "string"
+      ? data.detail
+      : "Failed to submit report");
+      return;
+    }
+
+    sessionStorage.setItem("flash", "Report submitted successfully");
+    window.location.href = "profile.html";
+  });
+</script>
+
+
+</body>
+</html>

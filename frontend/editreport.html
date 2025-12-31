@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CIRS – Edit Report</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <style>
+    .page{ padding: 28px 0 40px; }
+    .form-card{ background: var(--card); border:1px solid var(--border); border-radius: 14px; padding: 18px; box-shadow: var(--shadow); }
+    .form-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-grid .full{ grid-column: 1 / -1; }
+    label{ color: var(--muted); font-size: 14px; display:block; margin-bottom: 6px; }
+    input[type="text"], textarea, select{
+      width:100%; padding:12px 14px; border-radius:12px; border:1px solid var(--border);
+      background: rgba(255,255,255,0.03); color: var(--text);
+    }
+    textarea{ min-height: 160px; resize: vertical; }
+    .btn{ display:inline-block; padding:10px 14px; border-radius:12px; border:1px solid var(--border); text-decoration:none; color:#dfe7ff; cursor:pointer;}
+    .btn-primary{ background: var(--primary); border-color: var(--primary-600); }
+    .btn-ghost{ background: transparent; }
+    .imgwrap{ width:140px; height:100px; border:1px solid var(--border); border-radius:10px; overflow:hidden; background:#0c1226; display:flex; align-items:center; justify-content:center; }
+    .imgwrap img{ width:100%; height:100%; object-fit:cover; display:block; }
+    .muted{ color: var(--muted); }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="logo" aria-label="CIRS Home">
+        <svg width="28" height="28" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#6ea8ff"/><stop offset="100%" stop-color="#2347ff"/></linearGradient></defs><circle cx="32" cy="32" r="28" fill="url(#g1)"></circle><path d="M32 14l14 36H18L32 14z" fill="#fff"></path><circle cx="32" cy="44" r="3" fill="#2347ff"></circle></svg>
+        <span>CIRS</span>
+      </a>
+      <nav class="nav" aria-label="Primary">
+        <button class="nav-toggle" aria-controls="menu" aria-expanded="false"><span class="sr-only">Open menu</span><div class="bar"></div><div class="bar"></div><div class="bar"></div></button>
+        <ul id="menu" class="menu">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="createreport.html">Create Report</a></li>
+          <li><a href="viewreports.html">View Reports</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="page">
+    <div class="container">
+      <h1>Edit Report</h1>
+      <div class="form-card">
+        <form id="editForm">
+          <div class="form-grid">
+            <div class="full">
+              <label for="title">Issue title</label>
+              <input id="title" type="text" required>
+            </div>
+            <div class="full">
+              <label for="description">Description</label>
+              <textarea id="description" required></textarea>
+            </div>
+            <div>
+              <label for="status">Status</label>
+              <select id="status">
+                <option>Submitted</option>
+                <option>In Progress</option>
+                <option>Resolved</option>
+              </select>
+            </div>
+            <div>
+              <label for="location">Location</label>
+              <input id="location" type="text" placeholder="Update location if needed">
+            </div>
+            <div>
+              <label>Current image</label>
+              <div id="currentImageWrap" class="imgwrap"><span class="muted">—</span></div>
+            </div>
+            <div>
+              <label for="image">Replace image (optional)</label>
+              <input id="image" type="file" accept="image/*">
+            </div>
+            <div class="full">
+              <div class="actions">
+                <button class="btn btn-primary" type="submit">Save changes</button>
+                <a class="btn btn-ghost" href="profile.html">Cancel</a>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Toast -->
+  <div class="toast" role="status" aria-live="polite" aria-atomic="true">
+    <div class="toast-inner">
+      <strong>Notice</strong>
+      <p>Action completed.</p>
+      <button class="btn btn-sm close-toast" aria-label="Close">Close</button>
+    </div>
+  </div>
+
+  <script src="assets/js/main.js"></script>
+<script>
+  const API_BASE = "http://127.0.0.1:8000";
+  requireAuth();
+
+  const params = new URLSearchParams(location.search);
+  const reportId = params.get("id");
+
+  if (!reportId) {
+    showToast("Invalid report");
+    window.location.href = "profile.html";
+  }
+
+  /* =====================
+     LOAD REPORT FROM API
+  ===================== */
+  async function loadReport() {
+    const res = await fetch(`${API_BASE}/reports/${reportId}`, {
+      headers: {
+        "Authorization": `Bearer ${getToken()}`
+      }
+    });
+
+    if (!res.ok) {
+      showToast("Failed to load report");
+      return;
+    }
+
+    const r = await res.json();
+
+    // Prefill fields (KEEP YOUR UI)
+    title.value = r.title || "";
+    description.value = r.description || "";
+    location.value = r.location || "";
+    status.value = r.status || "Submitted";
+
+    const wrap = document.getElementById("currentImageWrap");
+    if (r.image_path) {
+      wrap.innerHTML = `<img src="${API_BASE}/${r.image_path}" alt="current">`;
+    } else {
+      wrap.innerHTML = `<span class="muted">—</span>`;
+    }
+  }
+
+  loadReport();
+
+  /* =====================
+     SUBMIT UPDATE
+  ===================== */
+  editForm.addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+
+    const formData = new FormData();
+    formData.append("title", title.value.trim());
+    formData.append("description", description.value.trim());
+    formData.append("location", location.value.trim());
+
+    const file = image.files[0];
+    if (file) {
+      formData.append("image", file);
+    }
+
+    const res = await fetch(`${API_BASE}/reports/${reportId}`, {
+      method: "PUT",
+      headers: {
+        "Authorization": `Bearer ${getToken()}`
+      },
+      body: formData
+    });
+
+    let data = null;
+    try { data = await res.json(); } catch {}
+
+    if (!res.ok) {
+      showToast(data?.detail || "Failed to update report");
+      return;
+    }
+
+    sessionStorage.setItem("flash", "Report updated successfully");
+    window.location.href = "profile.html";
+  });
+</script>
+
+</body>
+</html>

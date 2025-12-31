@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CIRS – Report Details</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css" />
+
+  <style>
+    .page { padding: 16px 0 32px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+    .imgwrap {
+      max-width: 720px;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      margin: 0 auto 14px auto;
+    }
+    .imgwrap img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .meta {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      font-size: 12px;
+      color: #bcd0ff;
+    }
+    .actions {
+      margin-top: 12px;
+    }
+    .comment {
+      border-bottom: 1px solid var(--border);
+      padding: 10px 0;
+    }
+    textarea {
+      width: 100%;
+      min-height: 90px;
+      border-radius: 12px;
+      padding: 10px;
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- ===== HEADER (UNCHANGED STYLE) ===== -->
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="index.html" class="logo">
+      <svg width="28" height="28" viewBox="0 0 64 64" aria-hidden="true">
+        <defs>
+          <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#6ea8ff"/>
+            <stop offset="100%" stop-color="#2347ff"/>
+          </linearGradient>
+        </defs>
+        <circle cx="32" cy="32" r="28" fill="url(#g1)"></circle>
+        <path d="M32 14l14 36H18L32 14z" fill="#fff"></path>
+        <circle cx="32" cy="44" r="3" fill="#2347ff"></circle>
+      </svg>
+      <span>CIRS</span>
+    </a>
+
+    <nav class="nav">
+      <ul class="menu">
+        <li><a href="index.html">Home</a></li>
+        </li>
+        <li><a href="createreport.html">Create Report</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<!-- ===== MAIN ===== -->
+<main class="page">
+  <div style="
+    max-width:1200px;
+    margin:0 auto 16px auto;
+    padding-left:8px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+  ">
+    <a href="viewreports.html" class="btn btn-ghost">← Back</a>
+    <h1 id="reportTitle" style="margin:0"></h1>
+  </div>
+
+  <div class="container">
+
+    <div id="reportCard" class="card"></div>
+
+    <div class="actions">
+      <button class="btn" id="likeBtn">👍 Like (<span id="likeCount">0</span>)</button>
+      <button class="btn" id="dislikeBtn">👎 Dislike (<span id="dislikeCount">0</span>)</button>
+    </div>
+
+    <h3 style="margin-top:24px">Comments</h3>
+    <div id="comments"></div>
+
+    <div id="commentBox" style="margin-top:10px">
+      <textarea id="commentInput" placeholder="Write a comment..."></textarea>
+      <button class="btn btn-primary" id="commentBtn">Post Comment</button>
+    </div>
+
+  </div>
+</main>
+
+<script src="assets/js/main.js"></script>
+<script>
+const API = "http://127.0.0.1:8000";
+const params = new URLSearchParams(window.location.search);
+const reportId = params.get("id");
+
+/* ---------- LOAD REPORT ---------- */
+async function loadReport() {
+  const res = await fetch(`${API}/reports/public/${reportId}`);
+  const r = await res.json();
+
+  document.getElementById("reportTitle").textContent = r.title;
+
+  document.getElementById("reportCard").innerHTML = `
+    ${r.image_path ? `
+      <div class="image-wrap">
+        <img src="${API}/${r.image_path}">
+      </div>` : ``}
+
+    <p style="color:#9aa4c7">Reported by ${r.username || "User " + r.user_id}</p>
+    <p><strong>Location:</strong> ${r.location}</p>
+    <span class="badge">${r.status}</span>
+
+    <p style="margin-top:12px">${r.description}</p>
+  `;
+}
+
+/* ---------- LOAD COMMENTS ---------- */
+async function loadComments() {
+  const res = await fetch(`${API}/reports/${reportId}/comments`);
+  const data = await res.json();
+
+  const commentsDiv = document.getElementById("comments");
+  commentsDiv.innerHTML = "";
+
+data.forEach(c => {
+  const div = document.createElement("div");
+  div.className = "comment-card";
+
+  div.innerHTML = `
+    <div class="comment-user">${c.username}</div>
+    <div class="comment-time">
+      ${new Date(c.created_at).toLocaleString()}
+    </div>
+    <div class="comment-text">${c.content}</div>
+  `;
+
+  commentsDiv.appendChild(div);
+});
+}
+
+/* ---------- POST COMMENT ---------- */
+document.getElementById("commentBtn").onclick = async () => {
+  const content = document.getElementById("commentInput").value.trim();
+  if (!content) return;
+
+  await fetch(`${API}/reports/${reportId}/comments`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${getToken()}`
+    },
+    body: JSON.stringify({ content })
+  });
+
+  document.getElementById("commentInput").value = "";
+  loadComments();
+};
+
+/* ---------- INIT ---------- */
+loadReport();
+loadComments();
+</script>
+
+
+</body>
+</html>

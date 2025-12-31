@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CIRS – Profile</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <style>
+    .page{ padding: 28px 0 40px; }
+    .card{ background: var(--card); border:1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow); padding: 16px; }
+    .table{ width:100%; border-collapse: collapse; }
+    .table th, .table td{ padding:10px; border-bottom: 1px solid var(--border); text-align:left; vertical-align: middle; }
+    .table th{ color: var(--muted); font-weight:600; font-size:14px; }
+    .badge{ display:inline-block; padding:4px 8px; border-radius:10px; border:1px solid var(--border); font-size:12px; color:#bcd0ff; }
+    .btn{ display:inline-block; padding:8px 12px; border-radius:12px; border:1px solid var(--border); text-decoration:none; color:#dfe7ff; cursor:pointer;}
+    .btn-ghost{ background: transparent; }
+    .btn-primary{ background: var(--primary); border-color: var(--primary-600); }
+    .btn-danger{ background: var(--accent); border-color: #cc2a41; }
+    .thumb{ width:64px; height:64px; object-fit:cover; border-radius:10px; border:1px solid var(--border); background:#0c1226; display:block; }
+    .actions .btn{ margin-right:6px; }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="logo" aria-label="CIRS Home">
+        <svg width="28" height="28" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#6ea8ff"/><stop offset="100%" stop-color="#2347ff"/></linearGradient></defs><circle cx="32" cy="32" r="28" fill="url(#g1)"></circle><path d="M32 14l14 36H18L32 14z" fill="#fff"></path><circle cx="32" cy="44" r="3" fill="#2347ff"></circle></svg>
+        <span>CIRS</span>
+      </a>
+      <nav class="nav" aria-label="Primary">
+        <button class="nav-toggle" aria-controls="menu" aria-expanded="false"><span class="sr-only">Open menu</span><div class="bar"></div><div class="bar"></div><div class="bar"></div></button>
+        <ul id="menu" class="menu">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="viewreports.html">View Reports</a></li>
+          <li><a href="createreport.html">Create Report</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page">
+  <div class="container">
+
+    <!-- PROFILE INFO -->
+    <div class="card">
+      <h2>My Profile</h2>
+      <p><strong>Name:</strong> <span id="name">–</span></p>
+      <p><strong>Email:</strong> <span id="email">–</span></p>
+    </div>
+
+    <!-- MY REPORTS -->
+    <div class="card">
+      <h2>My Reports</h2>
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Image</th>
+            <th>Title</th>
+            <th>Location</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="reportsBody"></tbody>
+      </table>
+    </div>
+
+  </div>
+</main>
+
+<!-- TOAST -->
+<div class="toast">
+  <div class="toast-inner">
+    <strong>Notice</strong>
+    <p></p>
+    <button class="close-toast" aria-label="Close">×</button>
+  </div>
+</div>
+
+<script src="assets/js/main.js"></script>
+
+<script>
+const API_BASE = "http://127.0.0.1:8000";
+
+requireAuth();
+
+/* =====================
+   LOAD PROFILE
+===================== */
+async function loadProfile() {
+  try {
+    const res = await fetch(`${API_BASE}/users/me`, {
+      headers: { "Authorization": `Bearer ${getToken()}` }
+    });
+    if (!res.ok) return;
+
+    const user = await res.json();
+    document.getElementById("name").textContent = user.name;
+    document.getElementById("email").textContent = user.email;
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+/* =====================
+   LOAD MY REPORTS
+===================== */
+async function loadMyReports() {
+  try {
+    const res = await fetch(`${API_BASE}/reports/me`, {
+      headers: { "Authorization": `Bearer ${getToken()}` }
+    });
+
+    if (!res.ok) {
+      showToast("Failed to load reports");
+      return;
+    }
+
+    const reports = await res.json();
+    renderReports(reports);
+  } catch (err) {
+    console.error(err);
+    showToast("Server error");
+  }
+}
+
+function renderReports(reports) {
+  const tbody = document.getElementById("reportsBody");
+  tbody.innerHTML = "";
+
+  if (reports.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6">No reports submitted yet.</td>
+      </tr>
+    `;
+    return;
+  }
+
+  reports.forEach(report => {
+    const tr = document.createElement("tr");
+
+    const img = report.image_path
+      ? `<img class="thumb" src="${API_BASE}/${report.image_path}">`
+      : `<span class="badge">No Image</span>`;
+
+    tr.innerHTML = `
+      <td>${img}</td>
+      <td>${report.title}</td>
+      <td>${report.location}</td>
+      <td><span class="badge">${report.status}</span></td>
+      <td>${report.created_at ? new Date(report.created_at).toLocaleDateString() : "-"}</td>
+      <td class="actions">
+        <a class="btn btn-view" href="report.html?id=${report.id}">View</a>
+        <a class="btn btn-edit" href="editreport.html?id=${report.id}">Edit</a>
+        <a class="btn btn-delete" href="deletereport.html?id=${report.id}">Delete</a>
+      </td>
+    `;
+
+    tbody.appendChild(tr);
+  });
+}
+
+/* =====================
+   INIT
+===================== */
+document.addEventListener("DOMContentLoaded", () => {
+  loadProfile();
+  loadMyReports();
+});
+</script>
+
+</body>
+</html>

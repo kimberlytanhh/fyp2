@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CIRS – View Reports</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css" />
+
+  <style>
+    .page{ padding: 28px 0 40px; }
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+      gap:16px;
+    }
+    .card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+    .card img{
+      width:100%;
+      height:160px;
+      object-fit:cover;
+      border-radius:12px;
+      border:1px solid var(--border);
+      margin-bottom:10px;
+    }
+    .meta{ color:var(--muted); font-size:13px; }
+    .badge{ display:inline-block; padding:4px 8px; border-radius:10px; border:1px solid var(--border); font-size:12px; color:#bcd0ff; }
+    .filters{ display:flex; gap:10px; margin-bottom:16px; }
+  </style>
+</head>
+
+<body>
+
+<!-- HEADER (UNCHANGED) -->
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="index.html" class="logo" aria-label="CIRS Home">
+      <svg width="28" height="28" viewBox="0 0 64 64" aria-hidden="true">
+        <defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#6ea8ff"/>
+          <stop offset="100%" stop-color="#2347ff"/>
+        </linearGradient></defs>
+        <circle cx="32" cy="32" r="28" fill="url(#g1)"></circle>
+        <path d="M32 14l14 36H18L32 14z" fill="#fff"></path>
+        <circle cx="32" cy="44" r="3" fill="#2347ff"></circle>
+      </svg>
+      <span>CIRS</span>
+    </a>
+    <nav class="nav" aria-label="Primary">
+      <button class="nav-toggle" aria-controls="menu" aria-expanded="false">
+        <span class="sr-only">Open menu</span>
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+      </button>
+      <ul id="menu" class="menu">
+        <li><a href="index.html">Home</a></li>
+        <li><a class="active" href="viewreports.html">View Reports</a></li>
+        <li><a href="createreport.html">Create Report</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+  <div class="container">
+    <h1>Community Reports</h1>
+
+    <div class="filters">
+      <select id="statusFilter" class="btn">
+        <option value="">All Status</option>
+        <option value="pending">Pending</option>
+        <option value="in_progress">In Progress</option>
+        <option value="resolved">Resolved</option>
+      </select>
+
+      <select id="sortFilter" class="btn">
+        <option value="newest">Newest</option>
+        <option value="oldest">Oldest</option>
+      </select>
+    </div>
+
+    <div id="reportsGrid" class="grid"></div>
+  </div>
+</main>
+
+<script src="assets/js/main.js"></script>
+<script>
+const API_BASE = "http://127.0.0.1:8000";
+const grid = document.getElementById("reportsGrid");
+const statusFilter = document.getElementById("statusFilter");
+const sortFilter = document.getElementById("sortFilter");
+
+async function loadReports(){
+  let url = `${API_BASE}/reports/public?sort=${sortFilter.value}`;
+  if(statusFilter.value) url += `&status=${statusFilter.value}`;
+
+  const res = await fetch(url);
+  if(!res.ok){ showToast("Failed to load reports"); return; }
+
+  const reports = await res.json();
+  grid.innerHTML = "";
+
+  if(reports.length === 0){
+    grid.innerHTML = "<p class='meta'>No reports found.</p>";
+    return;
+  }
+
+  for(const r of reports){
+    const reactRes = await fetch(`${API_BASE}/reports/${r.id}/reactions`);
+    const reactions = reactRes.ok ? await reactRes.json() : {likes:0,dislikes:0};
+
+    const comRes = await fetch(`${API_BASE}/reports/${r.id}/comments`);
+    const comments = comRes.ok ? (await comRes.json()).length : 0;
+
+    const div = document.createElement("div");
+    div.className = "card";
+
+    div.innerHTML = `
+      ${r.image_path
+  ? `<img src="${API_BASE}/${r.image_path}">`
+  : `<div style="
+      height:160px;
+      border:1px dashed var(--border);
+      border-radius:12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:var(--muted);
+    ">
+      No image
+    </div>`
+}
+      <div class="meta">Reported by <strong>${r.username}</strong></div>
+      <h3>${r.title}</h3>
+      <p class="meta">${r.location || "-"}</p>
+      <span class="badge">${r.status}</span>
+
+      <div class="meta" style="margin-top:8px">
+        👍 ${reactions.likes} &nbsp; 👎 ${reactions.dislikes} &nbsp; 💬 ${comments}
+      </div>
+
+      <p class="meta">${new Date(r.created_at).toLocaleDateString()}</p>
+      <button class="btn btn-ghost" onclick="goToReport(${r.id})">
+        View details
+      </button>
+
+    `;
+    grid.appendChild(div);
+  }
+}
+
+statusFilter.onchange = loadReports;
+sortFilter.onchange = loadReports;
+loadReports();
+</script>
+<script>
+function goToReport(id){
+  window.location.href = `report.html?id=${id}`;
+}
+</script>
+</body>
+</html>
