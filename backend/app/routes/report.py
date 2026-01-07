@@ -29,6 +29,8 @@ def create_report(
     title: str = Form(...),
     description: str = Form(...),
     location: str = Form(...),
+    longitude: float = Form(...),
+    latitude: float = Form(...),
     image: UploadFile | None = File(None),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -47,6 +49,8 @@ def create_report(
         title=title,
         description=description,
         location=location,
+        latitude=latitude,
+        longitude=longitude,
         image_path=image_path,
         user_id=current_user.id,
     )
@@ -126,6 +130,22 @@ def get_my_reports(
         .filter(Report.user_id == current_user.id)
         .all()
     )
+
+@router.get("/map")
+def get_reports_for_map(db: Session = Depends(get_db)):
+    reports = db.query(Report).all()
+
+    return [
+        {
+            "id": r.id,
+            "title": r.title,
+            "status": r.status,
+            "category": r.predicted_category,
+            "latitude": r.latitude,
+            "longitude": r.longitude,
+        }
+        for r in reports
+    ]
 
 @router.get("/{report_id}", response_model=ReportResponse)
 def get_report(
@@ -231,4 +251,7 @@ def update_report_status(
     db.refresh(report)
 
     return report
+
+
+
 

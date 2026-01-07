@@ -20,5 +20,7 @@ class Report(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     user = relationship("User", backref="reports")
     location = Column(String, nullable=False)
+    latitude = Column(Float, nullable=False)
+    longitude=Column(Float, nullable=False)
     image_path = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
