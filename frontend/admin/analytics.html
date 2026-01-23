@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Analytics | CIRS</title>
+
+  <link rel="stylesheet" href="../assets/css/styles.css" />
+  <link rel="stylesheet" href="../assets/css/admin.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="dashboard.html" class="logo">CIRS Admin</a>
+
+    <nav>
+      <ul class="menu">
+        <li>
+          <button id="toggleSidebar" class="btn">☰</button>
+        </li>
+        <li>
+          <a href="../index.html">Back to Site</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<div class="admin-layout">
+
+  <!-- SIDEBAR -->
+  <aside id="adminSidebar" class="admin-sidebar">
+    <div class="sidebar-header">
+      <span>Admin Menu</span>
+    </div>
+
+    <ul>
+      <li onclick="location.href='dashboard.html'">
+        <span class="icon">🏠</span>
+        <span class="text">Dashboard</span>
+      </li>
+      <li onclick="location.href='reports.html'">
+        <span class="icon">📄</span>
+        <span class="text">Reports</span>
+      </li>
+      <li class="active">
+        <span class="icon">📊</span>
+        <span class="text">Analytics</span>
+      </li>
+      <li onclick="location.href='chatbot.html'">
+        <span class="icon">🤖</span>
+        <span class="text">Chatbot</span>
+      </li>
+    </ul>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="admin-content">
+
+    <h1>Analytics</h1>
+    <p class="muted">
+      System insights and incident trends overview.
+    </p>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h3>Total Reports</h3>
+        <span id="totalReports">—</span>
+      </div>
+      <div class="stat-card">
+        <h3>Pending Review</h3>
+        <span id="pendingReports">—</span>
+      </div>
+      <div class="stat-card">
+        <h3>Resolved</h3>
+        <span id="resolvedReports">—</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Incidents by Category</h3>
+      <p class="muted">Chart integration can be added here.</p>
+    </div>
+
+  </main>
+</div>
+
+<script src="../assets/js/admin/layout.js"></script>
+<script src="../assets/js/admin/analytics.js"></script>
+
+</body>
+</html>

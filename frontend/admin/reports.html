@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Reports | CIRS</title>
+
+  <!-- Global styles -->
+  <link rel="stylesheet" href="../assets/css/styles.css" />
+  <!-- Admin styles -->
+  <link rel="stylesheet" href="../assets/css/admin.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="dashboard.html" class="logo">CIRS Admin</a>
+
+    <nav>
+      <ul class="menu">
+        <li>
+          <button id="toggleSidebar" class="btn">☰</button>
+        </li>
+        <li>
+          <a href="../index.html">Back to Site</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<div class="admin-layout">
+
+  <!-- SIDEBAR -->
+  <aside id="adminSidebar" class="admin-sidebar">
+    <div class="sidebar-header">
+      <span>Admin Menu</span>
+    </div>
+
+    <ul>
+      <li onclick="location.href='dashboard.html'">
+        <span class="icon">🏠</span>
+        <span class="text">Dashboard</span>
+      </li>
+      <li class="active">
+        <span class="icon">📄</span>
+        <span class="text">Reports</span>
+      </li>
+      <li>
+        <span class="icon">📊</span>
+        <span class="text">Analytics</span>
+      </li>
+      <li>
+        <span class="icon">🤖</span>
+        <span class="text">Chatbot</span>
+      </li>
+    </ul>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="admin-content">
+
+    <h1>Incident Reports</h1>
+    <p>Review incident reports and confirm AI-predicted categories.</p>
+
+    <table class="admin-table" id="reportsTable">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>AI Category</th>
+          <th>Confidence</th>
+          <th>Final Category</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Filled by JS -->
+      </tbody>
+    </table>
+
+  </main>
+</div>
+
+<script src="../assets/js/admin/layout.js"></script>
+<script src="../assets/js/admin/reports.js"></script>
+</body>
+</html>

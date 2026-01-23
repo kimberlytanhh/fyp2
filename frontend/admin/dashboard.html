@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Dashboard | CIRS</title>
+
+  <!-- Existing site styles -->
+  <link rel="stylesheet" href="../assets/css/styles.css" />
+  <!-- Admin styles -->
+  <link rel="stylesheet" href="../assets/css/admin.css" />
+  
+<body>
+
+<!-- ===== HEADER (REUSED FROM SITE) ===== -->
+<header class="site-header">
+  <div class="container">
+    <a href="../index.html" class="logo">CIRS Admin</a>
+
+    <nav>
+      <ul class="menu">
+        <li>
+          <button id="toggleSidebar" class="btn">☰</button>
+        </li>
+        <li>
+          <a href="../index.html">Back to Site</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<!-- ===== ADMIN LAYOUT ===== -->
+<div class="admin-layout">
+
+  <!-- SIDEBAR -->
+  <aside id="adminSidebar" class="admin-sidebar">
+    <div class="sidebar-header">
+      <span>Admin Menu</span>
+    </div>
+
+    <ul>
+      <li class="active">
+        <span class="icon">🏠</span>
+        <span class="text">Dashboard</span>
+      </li>
+      <li onclick="location.href='reports.html'">
+        <span class="icon">📄</span>
+        <span class="text">Reports</span>
+      </li>
+      <li onclick="location.href='analytics.html'">
+        <span class="icon">📊</span>
+        <span class="text">Analytics</span>
+      </li>
+      <li onclick="location.href='chatbot.html'">
+        <span class="icon">🤖</span>
+        <span class="text">Chatbot</span>
+      </li>
+    </ul>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="admin-content">
+
+    <!-- WELCOME -->
+    <div class="admin-welcome">
+      <h1>Welcome back, Admin 👋</h1>
+      <p>Manage incident reports, review AI suggestions, and monitor system activity.</p>
+    </div>
+
+    <!-- STATS -->
+    <div class="admin-cards">
+      <div class="admin-card">
+        <h3>Total Reports</h3>
+        <div class="number" id="totalReports">—</div>
+      </div>
+      <div class="admin-card">
+        <h3>Pending Review</h3>
+        <div class="number" id="pendingReview">—</div>
+      </div>
+      <div class="admin-card">
+        <h3>Resolved</h3>
+        <div class="number" id="resolved">—</div>
+      </div>
+    </div>
+
+    <!-- QUICK ACTIONS -->
+    <div class="admin-actions">
+      <a href="reports.html" class="btn">Review Reports</a>
+      <a href="analytics.html" class="btn btn-secondary">View Analytics</a>
+    </div>
+
+  </main>
+</div>
+
+<script src="../assets/js/admin/layout.js"></script>
+<script src="../assets/js/admin/dashboard.js"></script>
+
+</body>
+</html>

@@ -5,7 +5,7 @@ from app.models import user, report as report_model
 from app.routes import auth, report as report_routes
 from app.routes import analytics, user
 from fastapi.middleware.cors import CORSMiddleware
-from app.routes import comment, reaction, notifications
+from app.routes import comment, reaction, notifications, chatbot
 
 
 
@@ -33,6 +33,8 @@ app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 app.include_router(comment.router)
 app.include_router(reaction.router)
 app.include_router(notifications.router)
+app.include_router(chatbot.router)
+
 
 
 @app.get("/health")

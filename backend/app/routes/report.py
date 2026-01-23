@@ -6,13 +6,15 @@ import os
 from app.database import SessionLocal
 from app.models.report import Report
 from app.models.user import User
+from app.ai.text_classifier import predict_text_category
 from app.schemas.report import (
     ReportCreate,
-    ReportResponse,
+    ReportResponse, AdminCategoryUpdate,
     ReportStatusUpdate,
 )
+from sqlalchemy import func
 from app.core.deps import get_current_user, require_admin
-from app.ai.classifier import classify_image
+from app.ai.text_classifier import predict_text_category
 
 router = APIRouter(prefix="/reports", tags=["Reports"])
 
@@ -45,6 +47,18 @@ def create_report(
         with open(image_path, "wb") as buffer:
             shutil.copyfileobj(image.file, buffer)
 
+        # --- AI TEXT CATEGORY PREDICTION ---
+    combined_text = f"{title} {description}".strip()
+
+    text_pred = predict_text_category(combined_text)
+
+    # Text-only = suggestion only (no auto-confirm)
+    text_category = text_pred["category"]
+    text_confidence = text_pred["confidence"]
+
+    final_category = None
+    needs_review = True
+
     new_report = Report(
         title=title,
         description=description,
@@ -53,6 +67,11 @@ def create_report(
         longitude=longitude,
         image_path=image_path,
         user_id=current_user.id,
+
+        text_category=text_category,
+        text_confidence=text_confidence,
+        final_category=final_category,
+        needs_review=needs_review,
     )
 
     db.add(new_report)
@@ -251,6 +270,89 @@ def update_report_status(
     db.refresh(report)
 
     return report
+
+# =========================
+# Admin Dashboard Summary (NO AUTH FOR NOW)
+# =========================
+@router.get("/admin/summary")
+def admin_dashboard_summary(
+    db: Session = Depends(get_db),
+):
+    total_reports = db.query(Report).count()
+
+    pending_review = (
+        db.query(Report)
+        .filter(Report.needs_review == True)
+        .count()
+    )
+
+    status_counts = (
+        db.query(Report.status, db.func.count(Report.id))
+        .group_by(Report.status)
+        .all()
+    )
+
+    return {
+        "total_reports": total_reports,
+        "pending_review": pending_review,
+        "status_counts": {
+            status: count for status, count in status_counts
+        }
+    }
+
+# =========================
+# Admin: confirm / override category (NO AUTH)
+# =========================
+@router.patch("/{report_id}/category", response_model=ReportResponse)
+def admin_update_category(
+    report_id: int,
+    payload: AdminCategoryUpdate,
+    db: Session = Depends(get_db),
+):
+    report = db.query(Report).filter(Report.id == report_id).first()
+
+    if not report:
+        raise HTTPException(status_code=404, detail="Report not found")
+
+    report.final_category = payload.final_category
+    report.needs_review = False
+
+    db.commit()
+    db.refresh(report)
+
+    return report
+
+@router.get("/admin/all")
+def get_all_reports_for_admin(db: Session = Depends(get_db)):
+    return db.query(Report).order_by(Report.created_at.desc()).all()
+
+@router.get("/admin/stats")
+def get_admin_dashboard_stats(db: Session = Depends(get_db)):
+    total = db.query(Report).count()
+    pending = db.query(Report).filter(Report.needs_review == True).count()
+    resolved = db.query(Report).filter(Report.status == "resolved").count()
+
+    return {
+        "total_reports": total,
+        "pending_review": pending,
+        "resolved": resolved
+    }
+
+@router.get("/admin/analytics/categories")
+def analytics_by_category(db: Session = Depends(get_db)):
+    results = (
+        db.query(Report.final_category, func.count(Report.id))
+        .group_by(Report.final_category)
+        .all()
+    )
+
+    return {
+        "labels": [r[0] if r[0] else "Unconfirmed" for r in results],
+        "counts": [r[1] for r in results]
+    }
+
+
+
 
 
 

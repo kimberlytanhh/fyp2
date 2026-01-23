@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, ForeignKey, Float, DateTime
+from sqlalchemy import Column, Integer, String, Text, ForeignKey, Float, DateTime, Boolean
 from sqlalchemy.orm import relationship
 from app.database import Base
 from datetime import datetime
@@ -24,3 +24,15 @@ class Report(Base):
     longitude=Column(Float, nullable=False)
     image_path = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+    # AI – text
+    text_category = Column(String, nullable=True)
+    text_confidence = Column(Float, nullable=True)
+
+    # AI – image
+    image_category = Column(String, nullable=True)
+    image_confidence = Column(Float, nullable=True)
+
+    # Final decision
+    final_category = Column(String, nullable=True)
+    needs_review = Column(Boolean, default=True)
